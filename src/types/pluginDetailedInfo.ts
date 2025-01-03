@@ -11,6 +11,7 @@ export type PluginDetailedInfo = {
         issues: number;
         pullRequests: number;
         createAt: string;
+        pushedAt: string;
         updatedAt: string;
         license: string | null;
         downloads: number;
@@ -29,4 +30,4 @@ export type PluginDetailedInfo = {
             };
         };
     };
-} & Omit<Required<PluginInfo>, 'id'>;
+} & Required<PluginInfo>;

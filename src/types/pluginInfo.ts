@@ -3,7 +3,14 @@ export type PluginInfo = {
     name: string;
     version: string;
     description?: string;
-    tags?: string[];
+    tags?: (
+        | 'entertainment'
+        | 'development'
+        | 'tool'
+        | 'information'
+        | 'management'
+        | 'api'
+    )[];
     targetingSerein?: string[];
     dependencies?: { id: string; version: string[] }[];
     authors?: { name: string; description: string }[];

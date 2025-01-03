@@ -4,10 +4,15 @@ import { getOrFetchRepo } from './caches.ts';
 import logger from './logger.ts';
 
 export function validatePluginInfo(
+    id: string,
     pluginInfo: PluginInfo
 ): Required<PluginInfo> {
     if (!pluginInfo.id) {
         throw '缺少`id`字段';
+    }
+
+    if (id !== pluginInfo.id) {
+        throw 'id字段与文件夹名称不一致';
     }
 
     if (!/^[a-zA-Z][a-zA-Z0-9\\-]{4,25}$/.test(pluginInfo.id)) {

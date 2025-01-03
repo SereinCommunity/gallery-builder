@@ -4,7 +4,7 @@ import github from '@actions/github';
 declare interface Logger {
     error(message: string): void;
     warn(message: string): void;
-    info(message: string): void;
+    info(message?: string): void;
     debug(message: string): void;
 }
 
@@ -15,4 +15,4 @@ export default (github.context.action
           debug: core.debug,
           info: core.info,
       }
-    : console) satisfies Logger;
+    : console) as Logger;
