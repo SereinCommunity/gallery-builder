@@ -61,10 +61,12 @@ async function generateAuthors(authors: {
             const user = await getOrFetchUser(name);
             authorsContent += `${name}:
     name: ${user.name}
-    title: ${description || user.bio}
+    title: ${description || user.bio || '-'}
     image_url: ${user.avatar_url}
     url: ${user.html_url}
     page: true
+    social:
+        github: ${user.login}
 `;
         } catch (error) {
             logger.error(`获取用户 ${name} 失败：${error}`);
@@ -121,5 +123,24 @@ authors: [${pluginInfo.authors.map((v) => v.name).join(', ')}]
                 )
             );
         }
+    }
+
+    if (!hasMarkdown) {
+        writeFileSync(
+            join(
+                pathConstants.root,
+                pathConstants.website,
+                pluginInfo.id,
+                'index.md'
+            ),
+            `---
+authors: [${pluginInfo.authors.map((v) => v.name).join(', ')}]
+---
+
+# ${pluginInfo.name}
+
+${pluginInfo.description}
+`
+        );
     }
 }
