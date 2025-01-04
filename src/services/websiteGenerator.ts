@@ -60,23 +60,23 @@ async function generateAuthors(authors: {
         try {
             const user = await getOrFetchUser(name);
             authorsContent += `${name}:
-    name: ${user.name}
-    title: ${description || user.bio || '-'}
-    image_url: ${user.avatar_url}
-    url: ${user.html_url}
+    name: "${user.name}"
+    title: "${description || user.bio || '-'}"
+    image_url: "${user.avatar_url}"
+    url: "${user.html_url}"
     page: true
     social:
-        github: ${user.login}
+        github: "${user.login}"
 `;
         } catch (error) {
             logger.error(`获取用户 ${name} 失败：${error}`);
 
             authorsContent += `${name}:
-    name: ${name}
+    name: "${name}"
     page: true
 `;
             if (description) {
-                authorsContent += `    title: ${description}`;
+                authorsContent += `    title: "${description}"`;
             }
         }
 
@@ -134,7 +134,7 @@ authors: [${pluginInfo.authors.map((v) => v.name).join(', ')}]
                 'index.md'
             ),
             `---
-authors: [${pluginInfo.authors.map((v) => v.name).join(', ')}]
+authors: [${pluginInfo.authors.map((v) => `"${v.name}"`).join(', ')}]
 ---
 
 # ${pluginInfo.name}
