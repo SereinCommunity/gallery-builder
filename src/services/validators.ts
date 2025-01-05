@@ -86,7 +86,12 @@ export function validatePluginInfo(
         tags: pluginInfo.tags || [],
         targetingSerein: pluginInfo.targetingSerein || [],
         dependencies: pluginInfo.dependencies || [],
-        authors: pluginInfo.authors || [],
+        authors: pluginInfo.authors
+            ? pluginInfo.authors.map((author) => ({
+                  name: author.name,
+                  description: author.description || '',
+              }))
+            : [],
         type: pluginInfo.type,
         entryFile: pluginInfo.entryFile || '',
     };

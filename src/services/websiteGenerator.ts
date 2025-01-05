@@ -6,20 +6,18 @@ import {
     readFileSync,
     writeFileSync,
 } from 'fs';
+import yaml from 'js-yaml';
 import { join } from 'path';
+import { PluginDetailedInfo } from '../types/pluginDetailedInfo.ts';
 import { Result } from '../types/result.ts';
 import pathConstants from '../utils/pathConstants.ts';
-import { getOrFetchUser } from './caches.ts';
 import logger from './logger.ts';
-import { PluginDetailedInfo } from '../types/pluginDetailedInfo.ts';
 
 export default {
     generate,
 };
 
 function generate(path: string, result: Result) {
-    const authors: { [name: string]: string | undefined } = {};
-
     mkdirSync(join(pathConstants.root, pathConstants.website), {
         recursive: true,
     });
@@ -38,55 +36,10 @@ function generate(path: string, result: Result) {
 
         logger.info(`[${id}] 开始生成网页`);
 
-        for (const author of info.authors) {
-            authors[author.name] = author.description;
-        }
-
         copyFiles(pluginPath, info);
 
         logger.info(`[${id}] 文件复制完成`);
     }
-
-    generateAuthors(authors);
-    logger.info(`作者文件生成完成`);
-}
-
-async function generateAuthors(authors: {
-    [name: string]: string | undefined;
-}) {
-    let authorsContent = '';
-
-    for (const [name, description] of Object.entries(authors)) {
-        try {
-            const user = await getOrFetchUser(name);
-            authorsContent += `${name}:
-    name: "${user.name}"
-    title: "${description || user.bio || '-'}"
-    image_url: "${user.avatar_url}"
-    url: "${user.html_url}"
-    page: true
-    social:
-        github: "${user.login}"
-`;
-        } catch (error) {
-            logger.error(`获取用户 ${name} 失败：${error}`);
-
-            authorsContent += `${name}:
-    name: "${name}"
-    page: true
-`;
-            if (description) {
-                authorsContent += `    title: "${description}"`;
-            }
-        }
-
-        authorsContent += '\n\n';
-    }
-
-    writeFileSync(
-        join(pathConstants.root, pathConstants.website, 'authors.yml'),
-        authorsContent
-    );
 }
 
 function copyFiles(pluginPath: string, pluginInfo: PluginDetailedInfo) {
@@ -96,7 +49,11 @@ function copyFiles(pluginPath: string, pluginInfo: PluginDetailedInfo) {
             ['index.md', 'readme.md'].includes(file.toLowerCase()) &&
             !hasMarkdown
         ) {
-            const txt = readFileSync(join(pluginPath, file), 'utf8');
+            const txt = readFileSync(join(pluginPath, file), 'utf8').replace(
+                /^# .+$/m,
+                ''
+            );
+
             writeFileSync(
                 join(
                     pathConstants.root,
@@ -105,8 +62,9 @@ function copyFiles(pluginPath: string, pluginInfo: PluginDetailedInfo) {
                     'index.md'
                 ),
                 `---
-authors: [${pluginInfo.authors.map((v) => v.name).join(', ')}]
+${yaml.dump({ ...pluginInfo, title: pluginInfo.name })}
 ---
+
 ` + txt
             );
             hasMarkdown = true;
@@ -134,10 +92,8 @@ authors: [${pluginInfo.authors.map((v) => v.name).join(', ')}]
                 'index.md'
             ),
             `---
-authors: [${pluginInfo.authors.map((v) => `"${v.name}"`).join(', ')}]
+${yaml.dump({ ...pluginInfo, title: pluginInfo.name })}
 ---
-
-# ${pluginInfo.name}
 
 ${pluginInfo.description}
 `
