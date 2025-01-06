@@ -95,7 +95,12 @@ ${yaml.dump({ ...pluginInfo, title: pluginInfo.name })}
 ${yaml.dump({ ...pluginInfo, title: pluginInfo.name })}
 ---
 
-${pluginInfo.description}
+::: warning
+
+此插件暂未提供文档介绍，请参照仓库的自述文件。
+
+:::
+
 `
         );
     }
